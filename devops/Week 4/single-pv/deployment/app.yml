@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-service
+  labels:
+    app: app
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 32000
+  type: NodePort
+  selector:
+    app: app
+    tier: web-app
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-service
+  labels:
+    app: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+      tier: web-app
+  template:
+    metadata:
+      labels:
+        app: app
+        tier: web-app
+    spec:
+      containers:
+      - name: app
+        image: phionify/sanbercode-project-alpine
+        ports:
+          - containerPort: 80
+        volumeMounts:
+          - name: mysql-persistent-storage
+            mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: mysql-claim

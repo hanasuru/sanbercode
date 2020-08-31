@@ -1,0 +1,40 @@
+image: php:7.2-alpine
+
+stages:
+  - preparation
+  - testing
+  - deploying
+
+composer:
+  stage: preparation
+  script:
+    - curl -sS https://getcomposer.org/installer | php
+    - php composer.phar install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
+  artifacts:
+    paths:
+      - vendor/
+    expire_in: 365 days
+    when: always
+  cache:
+    paths:
+      - vendor/
+
+phpunit:
+  stage: testing
+  dependencies:
+    - composer
+  script:
+    - vendor/bin/phpunit tests
+
+heroku:
+  stage: deploying
+  dependencies:
+    - composer
+    - phpunit
+  script:
+    - apk update && apk upgrade
+    - apk add git ruby
+    - gem install dpl json_pure
+    - dpl --provider=heroku --app=$HEROKU_APP --api-key=$HEROKU_API_KEY
+  only: 
+  - master

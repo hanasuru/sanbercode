@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  # service_name
+  web:
+    # build Dockerfile on current directory
+    build: .
+    ports:
+      # external-port : internal-port 
+      - "4000:80"
+
+# Set default network to bridge
+networks:
+  default:
+    driver: bridge

@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  ssh:
+    build: .
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - ./service.sh:/service.sh
+    ports:
+      - "8022-8024:22"
+    privileged: true
